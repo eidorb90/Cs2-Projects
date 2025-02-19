@@ -3,7 +3,9 @@ insert_sort.py
 Brodie Rogers <brodie.rogers@students.cune.edu
 1/27/25
 
-
+This module implements shell sort algorithm using a custom Array class.
+The implementation includes functionality to test and benchmark the algorithm
+with different input sizes and data arrangements.
 """
 
 from csarray import Array
@@ -14,14 +16,32 @@ import csv
 
 
 class SortingArray(Array):
-    """SortingArray object with fixed size and sorting behaviors."""
+    """
+    SortingArray object with fixed size and sorting behaviors.
+
+    This class extends the Array class to add sorting capabilities,
+    specifically implementing the Shell Sort algorithm. It includes
+    methods for sorting, gap calculation, and performance testing.
+    """
 
     def shell_sort(self):
-        """Sort elements by sorting different shells 'smaller arrays' of a large array."""
-        # store the arr in a more normal var
+        """
+        Sort elements using the Shell Sort algorithm.
+
+        Shell Sort works by comparing elements separated by a gap.
+        The gap starts large and progressively reduces until it reaches 1,
+        effectively becoming an insertion sort. This implementation uses
+        Knuth's sequence for gap calculation.
+
+        Time Complexity:
+            - Best Case: O(n log n)
+            - Average Case: O(n^1.5)
+            - Worst Case: O(n^2)
+
+        Space Complexity: O(1) as it sorts in-place
+        """
         arr = self._data
 
-        # Get the initial Gap size for the array
         gap = self.calc_init_gap(arr)
 
         while gap > 0:
@@ -35,42 +55,47 @@ class SortingArray(Array):
 
                 arr[j + gap] = temp
 
-            # reduce the gap
             gap = (gap - 1) // 3
 
     def calc_init_gap(self, arr):
         """
-        Calculates the inital gap that should be used. We get this number from the Knuth Sequence.
+        Calculate the initial gap size using Knuth's sequence.
 
-        if k = # of iterations
-        then (3^k - 1) / 2
-        = sequence output
+        The sequence follows the formula: (3^k - 1) / 2
+        where k is the number of iterations. The sequence generates
+        gap sizes: 1, 4, 13, 40, 121, ...
 
-        In the Knuth sequence we start at 1 and with each iteration we multiply by 3 then add 1.
-        The First few iterations are as follows
+        Args:
+            arr: The array for which to calculate the initial gap
 
-        [1, 4, 13, 40, 121]
-
+        Returns:
+            int: The largest gap size less than the array length
         """
         len_arr = len(arr)
         start = 1
 
-        # Loop and find the output that is higher than the len
         while start < len_arr:
             start *= 3
             start += 1
-        # Go back one iteration so we are smaller than the len of the arr
         start = (start - 1) // 3
 
-        # return approiate gap size
         return start
 
     @staticmethod
     def save_data(t, data):
         """
-        Used to save the different data into a csv to create charts of the times
+        Save sorting performance data to CSV files.
+
+        Args:
+            t (str): Type of data being saved:
+                     'r' for random array data
+                     'a' for ascending array data
+                     'd' for descending array data
+            data (list): List of timing measurements to save
+
+        Raises:
+            Exception: If file operations fail
         """
-        # Set the file based on the input 't'
         if t == "r":
             file_name = "random.csv"
         elif t == "a":
@@ -80,7 +105,6 @@ class SortingArray(Array):
         else:
             print("please give 'r', 'a', or 'd' for the t value")
 
-        # Save the Data
         try:
             with open(file_name, "a") as file:
                 writer = csv.writer(file)
@@ -91,8 +115,20 @@ class SortingArray(Array):
 
     @staticmethod
     def test_shell_sort():
-        """Test Shell sort function, printing results for arrays of increasing size."""
+        """
+        Benchmark the Shell Sort implementation with various input sizes.
 
+        Tests the algorithm with three different array arrangements:
+            1. Random order arrays
+            2. Ascending order arrays
+            3. Descending order arrays
+
+        For each arrangement, tests array sizes:
+            [10, 100, 1000, 10000, 20000, 100000]
+
+        Performs 100 epochs of testing and saves timing data to CSV files.
+        Each timing measurement is rounded to 4 decimal places.
+        """
         sizes = [10, 100, 1000, 10000, 20000, 100000]
         time_data = []
         epochs = 100
@@ -100,12 +136,10 @@ class SortingArray(Array):
         for i in tqdm(range(epochs), desc="Processing"):
             time_data = []
             for s in sizes:
-                # Create Random Arrays
                 arr = SortingArray(size=s, default=0)
                 for i in range(s):
                     arr[i] = random.randint(0, 100)
 
-                # Time the Algorithm
                 start = time.time()
                 arr.shell_sort()
                 end = time.time()
@@ -115,12 +149,10 @@ class SortingArray(Array):
 
             time_data = []
             for s in sizes:
-                # Create Ascending Arrays
                 arr = SortingArray(size=s, default=0)
                 for i in range(1, s):
                     arr[i] = i
 
-                # Time the Algorithm
                 start = time.time()
                 arr.shell_sort()
                 end = time.time()
@@ -129,14 +161,12 @@ class SortingArray(Array):
 
             time_data = []
             for s in sizes:
-                # Create Descending Arrays
                 arr = SortingArray(size=s, default=0)
                 temp = s
                 for i in range(s):
                     arr[i] = temp
                     temp -= 1
 
-                # Time the Algorithm
                 start = time.time()
                 arr.shell_sort()
                 end = time.time()
