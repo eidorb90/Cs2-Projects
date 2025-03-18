@@ -1,5 +1,5 @@
 """
-insert_sort.py
+sorting_array.py
 Brodie Rogers <brodie.rogers@students.cune.edu
 1/27/25
 
